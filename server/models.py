@@ -38,9 +38,31 @@ class Recipe(db.Model, SerializerMixin):
     __tablename__ = 'recipes'
     
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
-    instructions = db.Column(db.String)
-    minutes_to_complete = db.Column(db.String)
+    title = db.Column(db.String, nullable=False)
+    instructions = db.Column(db.String, nullable=False)
+    minutes_to_complete = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.ForeignKey('users.id'), index=True)
 
     user = db.relationship('User', back_populates='recipes')
+
+    @validates('title')
+    def validate_title(self, key, title):
+        if not title:
+            raise ValueError('Title must be present')
+        return title
+
+    @validates('instructions')
+    def validate_instructions(self, key, instructions):
+        if not instructions:
+            raise ValueError('Instructions must be present')
+        if len(instructions) < 50:
+            raise ValueError('Instructions must be at least 50 characters long')
+        return instructions
+
+    @validates('minutes_to_complete')
+    def validate_minutes_to_complete(self, key, minutes):
+        if not isinstance(minutes, int) or minutes <= 0:
+            raise ValueError('Minutes to complete must be a positive integer')
+        return minutes
+
+    serialize_rules = ('-user.recipes',)
