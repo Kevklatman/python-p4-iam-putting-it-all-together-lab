@@ -31,6 +31,9 @@ class User(db.Model, SerializerMixin):
         if not username:
             raise ValueError('Username must be present')
         return username
+    
+    def authenticate(self, password):
+        return bcrypt.check_password_hash(self._password_hash, password)
 
     serialize_rules = ('-_password_hash',)
 

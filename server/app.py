@@ -28,6 +28,13 @@ class Signup(Resource):
         except ValueError as e:
             return {'error': str(e)}, 422
 
+class Logout(Resource):
+    def delete(self):
+        if not session.get('user_id'):
+            return {'error': 'Unauthorized'}, 401
+        session['user_id'] = None
+        return {}, 204
+
 class CheckSession(Resource):
     def get(self):
         user_id = session.get('user_id')
@@ -48,10 +55,7 @@ class Login(Resource):
                 return user.to_dict(), 200
         return {'error': 'Invalid username or password'}, 401
 
-class Logout(Resource):
-    def delete(self):
-        session['user_id'] = None
-        return {}, 204
+
 
 class RecipeIndex(Resource):
     def get(self):
